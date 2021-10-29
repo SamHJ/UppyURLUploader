@@ -1,0 +1,10 @@
+export const callback: (req: any, res: any, next: Function) => any;
+export const deauthorizationCallback: typeof import("./deauth-callback");
+export const sendToken: (req: any, res: any, next: Function) => any;
+export const get: typeof import("./get");
+export const thumbnail: typeof import("./thumbnail");
+export const list: typeof import("./list");
+export const logout: typeof import("./logout");
+export const connect: (req: any, res: any) => void;
+export const preauth: typeof import("./preauth");
+export const redirect: (req: any, res: any) => any;

@@ -1,0 +1,25 @@
+.uppy-Dashboard-inner{
+    margin: auto!important;
+    width: 80%!important;
+  }
+  .uppy-file-url-input{
+    width: 50%;
+    display: block;
+    margin: auto;
+    margin-top: 2rem;
+    height: 30px;
+    border-radius: 4px;
+    border: 2px solid #2196F3;
+    padding-left: 1rem;
+  }
+  .copy-btn{
+    width: 20%;
+    display: block;
+    margin: auto;
+    margin-top: 1rem;
+    height: 35px;
+    border-radius: 4px;
+    background: #2196F3;
+    color: white;
+    border: #2196F3;
+  }

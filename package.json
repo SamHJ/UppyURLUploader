@@ -1,0 +1,23 @@
+{
+  "name": "uppy",
+  "version": "1.0.0",
+  "description": "uppy upload",
+  "main": "index.js",
+  "scripts": {
+    "client": "light-server -p 3000 -s client",
+    "server": "node ./server/index.js",
+    "start": "yarn run server & yarn run client",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Emenike Samuel",
+  "license": "ISC",
+  "dependencies": {
+    "@uppy/companion": "^3.1.1",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "express-session": "^1.17.1",
+    "light-server": "^2.9.1",
+    "tus-node-server": "^0.3.2",
+    "upload-server": "^1.1.6"
+  }
+}
