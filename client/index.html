@@ -9,10 +9,123 @@
   </head>
   <body>
     <div id="drag-drop-area"></div>
+    
+    <div class="upload-progress"></div>
     <input placeholder="Uploaded File URL" class="uppy-file-url-input">
     <button onclick="copyToClipboard()" class="copy-btn">Copy Link</button>
 
     <script src="https://releases.transloadit.com/uppy/v2.2.1/uppy.min.js"></script>
-    <script src="assets/uppy.js"></script>
+
+    <script>
+      let fileInfo = {}
+
+      let isFromURL = false
+
+      document.addEventListener("DOMContentLoaded", function(){
+        const urlBtn = document.querySelector('[data-uppy-acquirer-id="Url"]')
+        const fileBtn = document.querySelector('[data-uppy-acquirer-id="MyDevice"]')
+        urlBtn.addEventListener('click',(e)=>isFromURL = true)
+        fileBtn.addEventListener('click',(e)=>isFromURL=false)
+      });
+
+      const uppy = new Uppy.Core({
+        debug: true, 
+        autoProceed: false,
+        onBeforeFileAdded: (currentFile, _) => {
+          if(isFromURL){
+              fileInfo = {
+                  name: currentFile.name,
+                  type: currentFile.type,
+                  extension: currentFile.extension,
+                  size: currentFile.data.size
+              }
+            const headers = {fileInfo:JSON.stringify(fileInfo)}
+            uppy.use(Uppy.Tus, { headers, endpoint: 'https://dload.tapnaija.com/upload/' })
+          }else{
+            uppy.use(Uppy.XHRUpload, {endpoint: 'https://dload.tapnaija.com/xhr-upload', fieldName: 'file', formData: true })
+          }
+        }
+      })
+      .use(Uppy.Dashboard, {inline: true,target: '#drag-drop-area',showProgressDetails: true,
+          metaFields: (file) => {
+    const fields = [{ id: 'name', name: 'File name' }]
+    if (file.type.startsWith('image/')) {
+      fields.push({ id: 'location', name: 'Photo Location' })
+      fields.push({ id: 'alt', name: 'Alt text' })
+      fields.push({
+        id: 'public',
+        name: 'Public',
+        render: ({ value, onChange, required, form }, h) => {
+          return h('input', {
+            type: 'checkbox',
+            onChange: (ev) => onChange(ev.target.checked ? 'on' : ''),
+            defaultChecked: value === 'on',
+            required,
+            form,
+          })
+        },
+      })
+    }
+    return fields
+  }
+      })
+      .use(Uppy.Url, { target: Uppy.Dashboard, companionUrl: 'https://dload.tapnaija.com' })
+      .use(Uppy.GoldenRetriever)
+      .use(Uppy.ProgressBar)
+      .use(Uppy.StatusBar)
+      .use(Uppy.ImageEditor,{
+          target: Uppy.Dashboard,
+          quality: 0.8,
+        })
+
+      if(isFromURL){
+        const progressContainer = document.querySelector('.upload-progress')
+        uppy.on('progress', (progress) => {
+          progressContainer.innerHTML = `${progress.bytesUploaded}/${progress.bytesTotal}`
+        })
+        uppy.on('upload-progress', (file, progress) => {
+          progressContainer.innerHTML = `${progress.bytesUploaded}/${progress.bytesTotal}`
+        })
+      }
+      
+      uppy.on('complete', res => {
+        if(res.successful){
+          const item = res.successful[0]
+          if(item){
+            let fileURL = ''
+            if(isFromURL){
+              fileURL = item.uploadURL.split("/upload/").join("/")
+            }else{
+              fileURL = `https://dload.tapnaija.com/downloads/${item.name}`
+            }
+
+            document.querySelector('.uppy-file-url-input').value = fileURL
+          }
+        }
+        flushPlugin()
+      })
+
+      uppy.on('upload-error', (file, error, response) => {
+        flushPlugin()
+      });
+
+      const flushPlugin = ()=>{
+        if(isFromURL) return uppy.removePlugin(uppy.getPlugin('Tus'));
+        uppy.removePlugin(uppy.getPlugin('XHRUpload'))
+      }
+
+      const copyToClipboard = ()=>{
+    var copyTextarea = document.querySelector('.uppy-file-url-input');
+    copyTextarea.focus();
+    copyTextarea.select();
+
+    try {
+      document.execCommand('copy');
+      alert(`Link copied successfully!`)
+    } catch (err) {
+      alert('Oops, unable to copy link');
+    }
+  }
+    </script>
   </body>
 </html>

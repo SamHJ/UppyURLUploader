@@ -23,3 +23,6 @@
     color: white;
     border: #2196F3;
   }
+  body > .uppy-Root.uppy-StatusBar{
+    display:none;
+  }
